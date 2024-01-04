@@ -2,6 +2,10 @@
 #azure ai 
 azure-identity
 azure-ai-formrecognizer
-
+azure-storage-blob
+python-dotenv
+python-docx
+PyPDF2
+PyMuPDF
 
 
