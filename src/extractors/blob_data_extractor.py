@@ -125,9 +125,11 @@ class AzureBlobManager:
             # Ensure folder path ends with a '/'
             if not folder_path.endswith('/'):
                 folder_path += '/'
+                logger.info(f"Folder path {folder_path}")
 
-            blob_list = self.container_client.list_blobs(name_starts_with=folder_path)
+            blob_list = self.container_client.list_blobs()
             for blob in blob_list:
+                logger.info(f"{blob.name}")
                 local_file_path = os.path.join(local_dir, os.path.basename(blob.name))
                 blob_client = self.container_client.get_blob_client(blob.name)
                 with open(local_file_path, "wb") as file:

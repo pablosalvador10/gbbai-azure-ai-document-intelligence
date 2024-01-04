@@ -180,7 +180,8 @@ class GPT4VisionManager:
         use_vision_api: bool = False,
         temperature: float = 0.7,
         top_p: float = 0.95,
-        max_tokens: int = 800,
+        max_tokens: int = 1000,
+        seed: int = 5555,
         model_version: str = "gpt-4-vision-preview",
         display_image: bool = False
     ) -> Dict:
@@ -197,6 +198,7 @@ class GPT4VisionManager:
         :param temperature: Optional float parameter for the GPT-4 model that controls the randomness of the model's output. Higher values produce more random outputs.
         :param top_p: Optional float parameter for the GPT-4 model that controls the nucleus sampling method used by the model. Lower values make the output more focused.
         :param max_tokens: Optional integer parameter for the GPT-4 model that sets the maximum number of tokens in the model's output.
+        :param seed: Optional parameter for the GPT-4 model that sets the seed for the random number generator. Using the same seed will ensure that the model produces the same output for the same input.
         :param model_version: Optional string parameter specifying the version of the GPT-4 Vision model to use.
         :param display_image: Optional boolean flag indicating whether to display the image.
         :return: A dictionary containing the response from the GPT-4 Vision API call. The dictionary includes the model's output and any other information returned by the API.
@@ -238,7 +240,8 @@ class GPT4VisionManager:
                 "messages": self.messages,
                 "temperature": temperature,
                 "top_p": top_p,
-                "max_tokens": max_tokens
+                "max_tokens": max_tokens,
+                "seed": seed
             }
 
             # HTTP headers

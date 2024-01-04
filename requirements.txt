@@ -2,10 +2,12 @@
 #azure ai 
 azure-identity
 azure-ai-formrecognizer
+azure-search-documents
 azure-storage-blob
 python-dotenv
 python-docx
 PyPDF2
 PyMuPDF
+openai==0.28
 
 
