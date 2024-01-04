@@ -4,7 +4,6 @@ import os
 from urllib.parse import urlparse
 import tempfile
 from typing import Optional
-from src.extractors.pdf_data_extractor import PDFHelper
 from src.extractors.blob_data_extractor import AzureBlobManager
 from utils.ml_logging import get_logger
 
@@ -73,7 +72,9 @@ class OCRHelper:
             output_path (str): Directory where the images will be saved.
         """
         all_files = glob.glob(os.path.join(directory_path, "*.pdf"))
+        logger.info(f"Found {len(all_files)} PDF files in {directory_path}")
         for file_path in all_files:
+            logger.info(f"Processing file: {file_path}")
             self._process_single_pdf(file_path, output_path)
 
     def _process_single_pdf(self, file_path: str, output_path: str) -> None:
@@ -95,5 +96,10 @@ class OCRHelper:
             logger.info(f"Processing page {page_number + 1} of {file_path}")
             pix = page.get_pixmap(matrix=mat)
             output_filename = f"{base_filename}-page-{page_number + 1}.png"
-            pix.save(os.path.join(output_path, output_filename))
-            logger.info(f"Saved image: {os.path.join(output_path, output_filename)}")
+            full_output_path = os.path.join(output_path, output_filename)
+
+            # Create the directory if it doesn't exist
+            os.makedirs(os.path.dirname(full_output_path), exist_ok=True)
+
+            pix.save(full_output_path)
+            logger.info(f"Saved image: {full_output_path}")
