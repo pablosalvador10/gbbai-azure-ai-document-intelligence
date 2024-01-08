@@ -70,7 +70,7 @@ call_function_sample:
 
 create_conda_env:
 	@echo "Creating conda environment"
-	conda env create -f environment.yml
+	conda env create -f environment.yaml
 
 activate_conda_env:
 	@echo "Creating conda environment"

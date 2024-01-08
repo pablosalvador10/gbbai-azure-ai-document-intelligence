@@ -1,0 +1,15 @@
+Valve,Seating,Shutoff Class
+EWD,Metal,II (standard)
+,,III (optional for NPS 6x4 through 12x6 valves with optional single graphite piston ring or for NPS 10x8 and 12×8 valves with optional double piston rings)
+,,IV (optional for NPS 6x4 through 12x8 valves with optional multiple graphite piston rings)
+EWS,Metal,IV (standard)
+,,"V (optional, consult your Emerson sales office)"
+EWS,PTFE,VI
+EWT with all except Cavitrol III cages,PTFE,Standard Air Test (maximum leakage is 0.05 mL/min/psid/inch port diameter)
+,,V (optional)
+,Metal,IV (standard)
+,Metal,V (optional)(1)
+EWT with 1-stage Cavitrol III cage,Metal,IV (standard)
+,,V (optional)
+EWT with 2-stage Cavitrol III cage,Metal,V
+"1. Class V shutoff for EWT requires spring loaded seal ring, radius-seat plug, wide-bevel seat ring, and seat lapping. Not available with 8-inch port, quick-opening cage. Not available with S31600 (316 SST) valve plug and seat ring.",,

@@ -2,7 +2,7 @@ import io
 import json
 import os
 import pickle
-from typing import Any, List, Dict
+from typing import Any, Dict, List
 
 from azure.storage.blob import BlobServiceClient
 from docx import Document
@@ -123,8 +123,8 @@ class AzureBlobManager:
         """
         try:
             # Ensure folder path ends with a '/'
-            if not folder_path.endswith('/'):
-                folder_path += '/'
+            if not folder_path.endswith("/"):
+                folder_path += "/"
                 logger.info(f"Folder path {folder_path}")
 
             blob_list = self.container_client.list_blobs()
@@ -153,8 +153,8 @@ class AzureBlobManager:
         """
         try:
             # Ensure folder path ends with a '/'
-            if not folder_path.endswith('/'):
-                folder_path += '/'
+            if not folder_path.endswith("/"):
+                folder_path += "/"
 
             # List all blobs in the specified folder
             blob_list = self.container_client.list_blobs(name_starts_with=folder_path)

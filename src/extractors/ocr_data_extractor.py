@@ -1,13 +1,16 @@
 import glob
-import fitz
 import os
-from urllib.parse import urlparse
 import tempfile
 from typing import Optional
+from urllib.parse import urlparse
+
+import fitz
+
 from src.extractors.blob_data_extractor import AzureBlobManager
 from utils.ml_logging import get_logger
 
 logger = get_logger()
+
 
 class OCRHelper:
     """
@@ -39,7 +42,7 @@ class OCRHelper:
             input_path (str): Path to the PDF file or folder of PDF files.
             output_path (str): Path to the folder where the pictures will be saved.
         """
-        is_url = urlparse(input_path).scheme in ['http', 'https']
+        is_url = urlparse(input_path).scheme in ["http", "https"]
 
         if is_url:
             logger.info(f"Input path is a URL: {input_path}")
@@ -59,7 +62,7 @@ class OCRHelper:
         """
         if os.path.isdir(input_path):
             self._process_pdf_directory(input_path, output_path)
-        elif os.path.isfile(input_path) and input_path.lower().endswith('.pdf'):
+        elif os.path.isfile(input_path) and input_path.lower().endswith(".pdf"):
             self._process_single_pdf(input_path, output_path)
         else:
             logger.error("The input path is neither a valid PDF file nor a directory.")

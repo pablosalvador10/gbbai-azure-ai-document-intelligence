@@ -1,38 +1,44 @@
-# Azure AI services Quick Start Accelerator <img src="./utils/images/azure_logo.png" alt="Azure Logo" style="width:30px;height:30px;"/>
-Welcome to the Azure AI Quick Start Accelerator! This repository is designed as a rapid launchpad for your complex AI systems projects, harnessing the power of Azure AI services. Tailored for both enterprise and academic environments, this accelerator integrates best practices to ensure a seamless development journey from start to finish.
+# Azure AI OCR services (preview version) <img src="./utils/images/azure_logo.png" alt="Azure Logo" style="width:30px;height:30px;"/>
 
+This project is a comprehensive guide to leveraging advanced OCR AI services from Azure. It provides a hands-on approach to understanding and implementing the following services:
 
+1. **PDF to Image Conversion with `OCRHelper`**: This section explains how to use `OCRHelper` to manage Azure Blob Storage connections and convert PDF files into images for further processing by the OCR GPT-4 Vision model.
 
-## 🌟 Goal
-The primary goal of this Accelerator is to provide a quick start for developing and deploying complex AI solutions using Azure AI services. It acts as a comprehensive guide for both novices and seasoned professionals, enabling the efficient establishment, deployment, and management of sophisticated AI systems.
+2. **Advanced Text Extraction with GPT-4 Vision**: This part demonstrates how to use the `GPT4VisionManager` to perform OCR on images, leveraging the GPT-4 Vision model's ability to recognize and extract text from images for applications like document analysis and data extraction.
 
-## 💼 Contributing: Your Gateway to Advanced AI Development & Collaboration!
+3. [**Contextual Text Generation with AzureOpenAIAssistant**]: After text extraction, this section shows how to use the `AzureOpenAIAssistant` to process the output. It interacts with the Azure OpenAI API to generate context-aware responses based on the extracted text, enhancing the system's interactivity and intelligence.
 
-Eager to make significant contributions? Our **[CONTRIBUTING](./CONTRIBUTING.md)** guide is your essential resource! It lays out a clear path for:
+4. **Document Analysis with Azure AI Document Intelligence**: This section provides an overview of Azure's Document Analysis Client and its pre-trained models for document analysis.
 
-- **🔄 Development Workflow**: Familiarize yourself with our optimized workflow, designed to foster effective collaboration and a focus on product-centric development.
+5.**Data Processing from the Layout Model**: This part delves into the insights from the data extracted from the layout model, discussing the need for custom logic for processing and the benefits of leveraging LangChain Integration for dynamic interaction with documents and content generation.
 
-- **🚀 Advanced AI Development Process**: Dive into the specifics of managing complex AI projects, from issue reporting to pull requests, all while adhering to best practices in advanced feature development and complex system troubleshooting.
+For a detailed explanation and walkthrough, please refer to the notebooks `01-ocr-gpt4v.ipynb` and `02-ocr-document-intelligence.ipynb`.
 
-- **🔍 Testing & QA for AI Systems**: Explore the importance of rigorous testing in AI projects and discover efficient development and testing techniques tailored for AI systems with tools like Jupyter Notebooks and `%%ipytest`.
+## 🔧 Prerequisites 
 
-- **🔢 Version & Branching Strategies for AI Projects**: Understand our versioning system and explore the project’s branching strategy, which ensures smooth transitions between development, staging, and production, especially for AI-driven applications.
+### Setting Up Azure AI Services
 
-- To stay updated with the latest developments and document significant changes to this project, please refer to [CHANGELOG.md](CHANGELOG.md).
+ **Azure OpenAI Service**: This service provides access to powerful AI models for various tasks such as text generation, translation, and summarization. To use this service, you need to create an Azure OpenAI service instance and obtain the API key. You can get started [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/).
 
+- **Azure Document Intelligence AI Service**: This service uses AI to extract insights and data from unstructured documents. It can help automate data extraction and make sense of large volumes of documents. Learn more and get started [here](https://azure.microsoft.com/en-us/products/ai-services/ai-document-intelligence).
+
+- **Azure Vision**: This service uses AI to analyze images and videos for various scenarios, including feature recognition, image classification, and object detection. Get started with Azure Vision [here](https://azure.microsoft.com/en-us/products/ai-services/ai-vision).
+
+- **Azure Storage (Blob)**: Azure Blob Storage is a service for storing large amounts of unstructured object data, such as text or binary data. It can be used for serving images or documents directly to a browser, storing files for distributed access, and more. Learn more and get started [here](https://learn.microsoft.com/en-us/azure/storage/common/storage-introduction).
 
 
 ## 🌲 Project Tree Structure
 
 ```
-📂 ml-project-template
-┣ 📂 docs <- Documentation for the project. README
-┣ 📂 notebooks <- For development, EDA, and quick testing (Jupyter notebooks for analysis and development). README
-┣ 📂 pipelines <- Orchestrates with Azure Pipeline/Airflow for ML workflows. More in README.
-┣ 📦 src <- Houses main source code for data processing, feature engineering, modeling, inference, and evaluation. README
-┣ 📂 test <- Runs unit and integration tests for code validation and QA. Check README.
-┣ 📂 utils <- Contains utility functions and shared code used throughout the project. Detailed info in README
+📂 gbbai-azure-ai-document-intelligence
+┣ 📂 notebooks <- For development, EDA, and quick testing (Jupyter notebooks for analysis and development).
+┣ 📦 src <- Houses main source code.
+┣ 📂 test <- Runs unit and integration tests for code validation and QA. 
+┣ 📂 utils <- Contains utility functions and shared code used throughout the project. 
 ┣ 📜 .pre-commit-config.yaml <- Config for pre-commit hooks ensuring code quality and consistency.
+┣ 📜 01-ocr-gpt4v.ipynb
+┣ 📜 02-ocr-document-intelligence.ipynb
+┣ 📜 CONTRIBUTING.md <- Guidelines for contributing to the project.
 ┣ 📜 CHANGELOG.md <- Logs project changes, updates, and version history.
 ┣ 📜 CONTRIBUTING.md <- Guidelines for contributing to the project.
 ┣ 📜 environment.yaml <- Conda environment configuration.
@@ -40,10 +46,6 @@ Eager to make significant contributions? Our **[CONTRIBUTING](./CONTRIBUTING.md)
 ┣ 📜 pyproject.toml <- Configuration file for build system requirements and packaging-related metadata.
 ┣ 📜 README.md <- Overview, setup instructions, and usage details of the project.
 ┣ 📜 requirements-codequality.txt <- Requirements for code quality tools and libraries.
-┣ 📜 requirements-pipelines.txt <- Requirements for pipeline-related dependencies.
 ┣ 📜 requirements.txt <- General project dependencies.
 ```
 
-##  👨🏽‍💻 System Design and Architecture
-
-## CI/CD

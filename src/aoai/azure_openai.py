@@ -49,7 +49,7 @@ class AzureOpenAIAssistant:
             prompt (str): The input text prompt for the model.
             temperature (float, optional): Controls randomness in the output. Default to 0.5.
             max_tokens (int, optional): Maximum number of tokens to generate. Defaults to 100.
-            deployment_instruct_name (str, optional): The name of the AI model deployment to use. 
+            deployment_instruct_name (str, optional): The name of the AI model deployment to use.
 
         Returns:
             Optional[str]: The generated text or None if an error occurs.
@@ -127,4 +127,3 @@ class AzureOpenAIAssistant:
         except Exception as e:
             logger.error(f"Failed to generate text with contextual history: {e}")
             return None
-

@@ -1,20 +1,22 @@
-import os
 import base64
-import requests
+import os
 from typing import Dict, List, Optional
-from IPython.display import display, Image
-from requests.exceptions import RequestException
+
+import requests
 from dotenv import load_dotenv
+from IPython.display import Image, display
+from requests.exceptions import RequestException
 
 from utils.ml_logging import get_logger
 
 # Initialize logging
 logger = get_logger()
 
-class GPT4VisionManager:   
+
+class GPT4VisionManager:
     """
     A class to interact with the GPT-4 Vision API, including OCR and Azure Computer Vision enhancements.
-    
+
     Attributes:
         openai_api_base (str): Base URL for OpenAI API.
         deployment_name (str): Name of the deployment.
@@ -60,7 +62,7 @@ class GPT4VisionManager:
             "OPENAI_API_BASE": self.openai_api_base,
             "DEPLOYMENT_NAME": self.deployment_name,
             "OPENAI_API_VERSION": self.openai_api_version,
-            "OPENAI_API_KEY": self.openai_api_key
+            "OPENAI_API_KEY": self.openai_api_key,
         }
 
         missing_vars = [var for var, value in required_vars.items() if not value]
@@ -69,19 +71,16 @@ class GPT4VisionManager:
             raise EnvironmentError(
                 f"Missing required environment variables: {', '.join(missing_vars)}"
             )
-        
-    @staticmethod    
+
+    @staticmethod
     def _prepare_system_message(system_text: str) -> Dict:
         """
-        Prepares the system message for the GPT-4 Vision API call. 
+        Prepares the system message for the GPT-4 Vision API call.
 
         :param system_text: The system text message.
         :return: A dictionary formatted as a system message.
         """
-        return {
-            "role": "system",
-            "content": [{"type": "text", "text": system_text}]
-        }
+        return {"role": "system", "content": [{"type": "text", "text": system_text}]}
 
     @staticmethod
     def _prepare_user_message(user_text: str) -> Dict:
@@ -91,12 +90,7 @@ class GPT4VisionManager:
         :param user_text: The user text prompt.
         :return: A dictionary formatted as a user message.
         """
-        return {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": user_text}
-            ]
-        }
+        return {"role": "user", "content": [{"type": "text", "text": user_text}]}
 
     @staticmethod
     def _encode_image_to_base64(image_file_path: str) -> str:
@@ -108,8 +102,8 @@ class GPT4VisionManager:
         :raises FileNotFoundError: If the image file is not found.
         """
         try:
-            with open(image_file_path, 'rb') as image_file:
-                return base64.b64encode(image_file.read()).decode('utf-8')
+            with open(image_file_path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode("utf-8")
         except FileNotFoundError as e:
             logger.error(f"Image file not found: {e}")
             raise
@@ -128,7 +122,6 @@ class GPT4VisionManager:
         self.messages = [system_message, user_message]
         logger.info(f"Instruction: {self.messages}")
         return self.messages
-    
 
     def _validate_message_structure(self, messages: List[Dict]) -> bool:
         """
@@ -145,7 +138,9 @@ class GPT4VisionManager:
                     return False
         return True
 
-    def add_image_url_to_user_message(self, image_url: str, message: Optional[Dict] = None) -> Dict:
+    def add_image_url_to_user_message(
+        self, image_url: str, message: Optional[Dict] = None
+    ) -> Dict:
         """
         Adds the image URL to the user message.
 
@@ -156,26 +151,31 @@ class GPT4VisionManager:
         try:
             if message is None and self.messages is None:
                 raise ValueError("No message provided to add the image URL to.")
-            else: 
+            else:
                 self.messages = message if message is not None else self.messages
 
             if not self._validate_message_structure(self.messages):
                 raise ValueError("Invalid message structure.")
 
-            self.messages[-1]["content"].append({"type": "image_url", "image_url": {"url": image_url}})
+            self.messages[-1]["content"].append(
+                {"type": "image_url", "image_url": {"url": image_url}}
+            )
             logger.info("Image URL added to user message successfully.")
-            
+
             return self.messages
         except Exception as e:
-            logger.error(f"An error occurred while adding the image URL to the user message: {e}")
+            logger.error(
+                f"An error occurred while adding the image URL to the user message: {e}"
+            )
             raise
 
-    def call_gpt4v_image(self,
+    def call_gpt4v_image(
+        self,
         image_file_path: str,
-        system_instruction: Optional[str] = None, 
-        user_instruction: Optional[str] = None, 
-        ocr: bool = False, 
-        grounding: bool = False, 
+        system_instruction: Optional[str] = None,
+        user_instruction: Optional[str] = None,
+        ocr: bool = False,
+        grounding: bool = False,
         in_context: Optional[Dict] = None,
         use_vision_api: bool = False,
         temperature: float = 0.7,
@@ -183,7 +183,7 @@ class GPT4VisionManager:
         max_tokens: int = 1000,
         seed: int = 5555,
         model_version: str = "gpt-4-vision-preview",
-        display_image: bool = False
+        display_image: bool = False,
     ) -> Dict:
         """
         Make an API call to the GPT-4 Vision model with optional OCR, grounding, and Azure Computer Vision API enhancements.
@@ -204,7 +204,6 @@ class GPT4VisionManager:
         :return: A dictionary containing the response from the GPT-4 Vision API call. The dictionary includes the model's output and any other information returned by the API.
         """
         try:
-
             encoded_image = self._encode_image_to_base64(image_file_path)
             image_url = f"data:image/jpeg;base64,{encoded_image}"
 
@@ -214,20 +213,33 @@ class GPT4VisionManager:
             self.add_image_url_to_user_message(image_url)
 
             if use_vision_api:
-                azure_endpoint_vision = os.getenv('AZURE_ENDPOINT_VISION')
-                azure_key_vision = os.getenv('AZURE_KEY_VISION')
+                azure_endpoint_vision = os.getenv("AZURE_ENDPOINT_VISION")
+                azure_key_vision = os.getenv("AZURE_KEY_VISION")
 
                 if not azure_endpoint_vision or not azure_key_vision:
-                    logger.error("Missing required Azure Computer Vision environment variables.")
-                    raise SystemExit("Missing required Azure Computer Vision environment variables.")
+                    logger.error(
+                        "Missing required Azure Computer Vision environment variables."
+                    )
+                    raise SystemExit(
+                        "Missing required Azure Computer Vision environment variables."
+                    )
 
                 vision_api_config = {
                     "endpoint": azure_endpoint_vision,
-                    "key": azure_key_vision
+                    "key": azure_key_vision,
                 }
 
-            if not all([self.openai_api_base, self.deployment_name, self.openai_api_version, self.openai_api_key]):
-                raise SystemExit("Missing required OpenAI environment variables. Please call the function load_environment_variables_from_env_file")
+            if not all(
+                [
+                    self.openai_api_base,
+                    self.deployment_name,
+                    self.openai_api_version,
+                    self.openai_api_key,
+                ]
+            ):
+                raise SystemExit(
+                    "Missing required OpenAI environment variables. Please call the function load_environment_variables_from_env_file"
+                )
 
             api_url = f"{self.openai_api_base}/openai/deployments/{self.deployment_name}/{'extensions/' if ocr or grounding else ''}chat/completions?api-version={self.openai_api_version}"
 
@@ -241,7 +253,7 @@ class GPT4VisionManager:
                 "temperature": temperature,
                 "top_p": top_p,
                 "max_tokens": max_tokens,
-                "seed": seed
+                "seed": seed,
             }
 
             # HTTP headers
@@ -253,22 +265,20 @@ class GPT4VisionManager:
             if ocr or grounding:
                 payload["enhancements"] = {
                     "ocr": {"enabled": ocr},
-                    "grounding": {"enabled": grounding}
+                    "grounding": {"enabled": grounding},
                 }
 
             data_sources = []
 
             if in_context is not None:
-                data_sources.append({
-                    "type": "AzureCognitiveSearch",
-                    "parameters": in_context
-                })
+                data_sources.append(
+                    {"type": "AzureCognitiveSearch", "parameters": in_context}
+                )
 
             if use_vision_api:
-                data_sources.append({
-                    "type": "AzureComputerVision",
-                    "parameters": vision_api_config
-                })
+                data_sources.append(
+                    {"type": "AzureComputerVision", "parameters": vision_api_config}
+                )
 
             if data_sources:
                 payload["dataSources"] = data_sources
@@ -277,7 +287,7 @@ class GPT4VisionManager:
             response = requests.post(api_url, headers=headers, json=payload)
             response.raise_for_status()
             logger.info("Request successful.")
-            content = response.json()['choices'][0]['message']['content']
+            content = response.json()["choices"][0]["message"]["content"]
 
             if display_image:
                 display(Image(image_file_path))
