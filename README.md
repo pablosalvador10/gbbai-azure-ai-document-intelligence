@@ -1,4 +1,4 @@
-# Azure AI OCR services (preview version) <img src="./utils/images/azure_logo.png" alt="Azure Logo" style="width:30px;height:30px;"/>
+# Azure AI: Advance OCR and Document Intelligence Services (Preview Version) <img src="./utils/images/azure_logo.png" alt="Azure Logo" style="width:30px;height:30px;"/>
 
 This project is a comprehensive guide to leveraging advanced OCR AI services from Azure. It provides a hands-on approach to understanding and implementing the following services:
 
