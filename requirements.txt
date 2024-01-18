@@ -11,5 +11,8 @@ PyMuPDF
 openai==0.28
 langchain 
 langchain-community
+Pillow
+PyMuPDF
+tabula-py
 
 

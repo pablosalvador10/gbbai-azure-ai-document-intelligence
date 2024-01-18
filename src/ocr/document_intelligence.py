@@ -1,10 +1,15 @@
 import os
 from functools import lru_cache
-from typing import Optional
+from typing import Any, Iterator, List, Optional, Union
 
-from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.ai.documentintelligence import DocumentIntelligenceClient, models
+
+# from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
 from azure.core.credentials import AzureKeyCredential
+from azure.core.polling import LROPoller
 from dotenv import load_dotenv
+from langchain_core.documents import Document
 
 from utils.ml_logging import get_logger
 
@@ -37,8 +42,11 @@ class AzureDocumentIntelligenceManager:
                 "Azure endpoint and key must be provided either as parameters or in a .env file."
             )
 
-        self.document_analysis_client = DocumentAnalysisClient(
-            endpoint=self.azure_endpoint, credential=AzureKeyCredential(self.azure_key)
+        self.document_analysis_client = DocumentIntelligenceClient(
+            endpoint=self.azure_endpoint,
+            credential=AzureKeyCredential(self.azure_key),
+            headers={"x-ms-useragent": "langchain-parser/1.0.0"},
+            polling_interval=30,
         )
 
     @lru_cache(maxsize=1)
@@ -67,14 +75,24 @@ class AzureDocumentIntelligenceManager:
             )
 
     def analyze_document(
-        self, document_input: str, model_type: str = "prebuilt-layout"
-    ) -> dict:
+        self,
+        document_input: str,
+        model_type: str = "prebuilt-layout",
+        pages: Optional[str] = None,
+        locale: Optional[str] = None,
+        string_index_type: Optional[Union[str, models.StringIndexType]] = None,
+        features: Optional[List[str]] = None,
+        query_fields: Optional[List[str]] = None,
+        output_format: Optional[Union[str, models.ContentFormat]] = None,
+        content_type: str = "application/json",
+        **kwargs: Any,
+    ) -> LROPoller:
         """
         Analyzes a document using Azure's Document Analysis Client with pre-trained models.
 
         :param document_input: URL or file path of the document to analyze.
         :param model_type: Type of pre-trained model to use for analysis. Defaults to 'prebuilt-layout'.
-               Options include:
+            Options include:
             - 'prebuilt-document': Generic document understanding.
             - 'prebuilt-layout': Extracts text, tables, selection marks, and structure elements.
             - 'prebuilt-read': Extracts print and handwritten text.
@@ -85,20 +103,69 @@ class AzureDocumentIntelligenceManager:
             - 'prebuilt-businesscard': Extracts information from business cards.
             - 'prebuilt-contract': Analyzes contractual agreements.
             - 'prebuilt-healthinsurancecard': Processes health insurance cards.
-            Additional custom and composed models are also available. See the documentation for more details
-              `https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/concept-model-overview?view=doc-intel-4.0.0`
-        :return: Analysis result.
+            Additional custom and composed models are also available. See the documentation for more details:
+            `https://docs.microsoft.com/en-us/azure/cognitive-services/form-recognizer/document-analysis-overview`
+        :param pages: List of 1-based page numbers to analyze.  Ex. "1-3,5,7-9".
+        :param locale: Locale hint for text recognition and document analysis.
+        :param string_index_type: Method used to compute string offset and length. The options are:
+            - "TEXT_ELEMENTS": User-perceived display character, or grapheme cluster, as defined by Unicode 8.0.0.
+            - "UNICODE_CODE_POINT": Character unit represented by a single unicode code point. Used by Python 3.
+            - "UTF16_CODE_UNIT": Character unit represented by a 16-bit Unicode code unit. Used by JavaScript, Java, and .NET.
+        :param features: List of optional analysis features. The options are:
+            - "BARCODES": Detects barcodes in the document.
+            - "FORMULAS": Detects and analyzes formulas in the document.
+            - "KEY_VALUE_PAIRS": Detects and analyzes key-value pairs in the document.
+            - "LANGUAGES": Detects and analyzes languages in the document.
+            - "OCR_HIGH_RESOLUTION": Performs high-resolution optical character recognition (OCR) on the document.
+            - "QUERY_FIELDS": Extracts specific fields from the document based on a query.
+            - "STYLE_FONT": Detects and analyzes font styles in the document.
+        :param query_fields: List of additional fields to extract.
+        :param output_content_format: Format of the analyze result top-level content.
+        :param content_type: Body Parameter content-type. Content type parameter for JSON body.
+        :param kwargs: Additional keyword arguments to pass to the analysis method.
+        :return: An instance of LROPoller that returns AnalyzeResult.
         """
+        # Convert feature strings into DocumentAnalysisFeature objects
+        if features is not None:
+            features = [
+                getattr(models.DocumentAnalysisFeature, feature) for feature in features
+            ]
+
         if document_input.startswith("http://") or document_input.startswith(
             "https://"
         ):
-            poller = self.document_analysis_client.begin_analyze_document_from_url(
-                model_type, document_input
+            poller = self.document_analysis_client.begin_analyze_document(
+                model_id=model_type,
+                analyze_request=AnalyzeDocumentRequest(url_source=document_input),
+                pages=pages,
+                locale=locale,
+                string_index_type=string_index_type,
+                features=features,
+                query_fields=query_fields,
+                output_content_format=output_format if output_format else "text",
+                content_type=content_type,
+                **kwargs,
             )
         else:
             with open(document_input, "rb") as f:
                 poller = self.document_analysis_client.begin_analyze_document(
-                    model_type, f
+                    model_id=model_type,
+                    analyze_request=f,
+                    pages=pages,
+                    locale=locale,
+                    string_index_type=string_index_type,
+                    features=features,
+                    query_fields=query_fields,
+                    output_content_format=output_format if output_format else "text",
+                    content_type=content_type,
+                    **kwargs,
                 )
 
         return poller.result()
+
+    def _generate_docs_single(self, result: Any) -> Iterator[Document]:
+        yield Document(page_content=result.content, metadata={})
+
+    def load(self, result: Any) -> List[Document]:
+        """Load given path as pages."""
+        return list(self._generate_docs_single(result))
