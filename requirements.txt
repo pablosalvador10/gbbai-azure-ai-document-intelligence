@@ -14,5 +14,5 @@ langchain-community
 Pillow
 PyMuPDF
 tabula-py
-
+tiktoken
 

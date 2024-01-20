@@ -171,7 +171,7 @@ class GPT4VisionManager:
 
     def call_gpt4v_image(
         self,
-        image_file_path: str,
+        image_file_paths: List[str],
         system_instruction: Optional[str] = None,
         user_instruction: Optional[str] = None,
         ocr: bool = False,
@@ -204,13 +204,14 @@ class GPT4VisionManager:
         :return: A dictionary containing the response from the GPT-4 Vision API call. The dictionary includes the model's output and any other information returned by the API.
         """
         try:
-            encoded_image = self._encode_image_to_base64(image_file_path)
-            image_url = f"data:image/jpeg;base64,{encoded_image}"
 
             if system_instruction is not None or user_instruction is not None:
                 self.prepare_instruction(system_instruction, user_instruction)
 
-            self.add_image_url_to_user_message(image_url)
+            for image_file_path in image_file_paths:  # Iterate over the list of image file paths
+                encoded_image = self._encode_image_to_base64(image_file_path)
+                image_url = f"data:image/jpeg;base64,{encoded_image}"
+                self.add_image_url_to_user_message(image_url)
 
             if use_vision_api:
                 azure_endpoint_vision = os.getenv("AZURE_ENDPOINT_VISION")
