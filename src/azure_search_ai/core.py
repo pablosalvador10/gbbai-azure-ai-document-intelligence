@@ -4,6 +4,7 @@ from azure.core.credentials import AzureKeyCredential
 from azure.core.exceptions import AzureError
 import requests
 import traceback
+import json
 import os
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents import SearchClient
@@ -95,17 +96,18 @@ class AzureAISearchManager:
         try:
             if method.lower() == "get":
                 response = requests.get(url, headers=headers)
-            elif method.lower() == "post" and body is not None:
+            elif method.lower() == "post":
                 response = requests.post(url, headers=headers, data=body)
             else:
                 raise ValueError("Invalid method. Expected 'get' or 'post'.")
             
             response.raise_for_status()
-        except requests.exceptions.HTTPError as http_err:
+        except requests.HTTPError as http_err:
             logger.error(f"HTTP error occurred: {http_err}")
-            if response:
-                logger.error(f"Response content: {response.content}")
-            traceback.print_exc()
+          
+            error_response = http_err.response.json()  # Assuming the error response is in JSON format
+            logger.error(f"Error code: {http_err.response.status_code}")
+            logger.error("Error message:", error_response.get("error", {}).get("message", "No error message available"))
         except Exception as err:
             logger.error(f"An error occurred: {err}")
             traceback.print_exc()

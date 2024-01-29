@@ -113,7 +113,7 @@ class IndexerManager(AzureAISearchManager):
             "skills": skills
         }
 
-        self.call_azure_search_api(resource="skillsets", method="POST", api_version="2023-10-01-Preview", body=json.dumps(body))
+        self.call_azure_search_api(resource="skillsets", method="POST", api_version="2023-10-01-Preview", body=body)
 
     def create_indexer(self, indexer_name: str, 
                        description: str, 

@@ -1,7 +1,7 @@
 # core DS development
 #azure ai 
 azure-identity
-azure-ai-formrecognizer
+azure-ai-documentintelligence
 azure-search-documents
 azure-storage-blob
 python-dotenv
@@ -15,4 +15,3 @@ Pillow
 PyMuPDF
 tabula-py
 tiktoken
-

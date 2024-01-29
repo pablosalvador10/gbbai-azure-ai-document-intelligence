@@ -6,11 +6,11 @@ from azure.ai.documentintelligence import DocumentIntelligenceClient, models
 
 # from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
+from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 from azure.core.credentials import AzureKeyCredential
 from azure.core.polling import LROPoller
 from dotenv import load_dotenv
 from langchain_core.documents import Document
-
 from utils.ml_logging import get_logger
 
 # Initialize logging
@@ -23,7 +23,9 @@ class AzureDocumentIntelligenceManager:
     """
 
     def __init__(
-        self, azure_endpoint: Optional[str] = None, azure_key: Optional[str] = None
+        self, azure_endpoint: Optional[str] = None, 
+        azure_key: Optional[str] = None,
+        container_name: Optional[str] = None
     ):
         """
         Initialize the class with configurations for Azure's Document Analysis Client.
@@ -41,6 +43,8 @@ class AzureDocumentIntelligenceManager:
             raise ValueError(
                 "Azure endpoint and key must be provided either as parameters or in a .env file."
             )
+        
+        self.blob_manager = AzureBlobDataExtractor(container_name=container_name)
 
         self.document_analysis_client = DocumentIntelligenceClient(
             endpoint=self.azure_endpoint,
@@ -131,26 +135,18 @@ class AzureDocumentIntelligenceManager:
                 getattr(models.DocumentAnalysisFeature, feature) for feature in features
             ]
 
-        if document_input.startswith("http://") or document_input.startswith(
-            "https://"
-        ):
-            poller = self.document_analysis_client.begin_analyze_document(
-                model_id=model_type,
-                analyze_request=AnalyzeDocumentRequest(url_source=document_input),
-                pages=pages,
-                locale=locale,
-                string_index_type=string_index_type,
-                features=features,
-                query_fields=query_fields,
-                output_content_format=output_format if output_format else "text",
-                content_type=content_type,
-                **kwargs,
-            )
-        else:
-            with open(document_input, "rb") as f:
+        # Check if the document_input is a URL
+        if document_input.startswith(("http://", "https://")):
+            # If it's an HTTP URL, raise an error
+            if document_input.startswith("http://"):
+                raise ValueError("HTTP URLs are not supported. Please use HTTPS.")
+            # If it's an HTTPS URL but contains "blob.core.windows.net", process it as a blob
+            elif "blob.core.windows.net" in document_input:
+                logger.info("Blob URL detected. Extracting content.")
+                content_bytes = self.blob_manager.extract_content(document_input)
                 poller = self.document_analysis_client.begin_analyze_document(
                     model_id=model_type,
-                    analyze_request=f,
+                    analyze_request=AnalyzeDocumentRequest(base64_source=content_bytes),
                     pages=pages,
                     locale=locale,
                     string_index_type=string_index_type,
@@ -160,9 +156,37 @@ class AzureDocumentIntelligenceManager:
                     content_type=content_type,
                     **kwargs,
                 )
-
+            else: 
+                poller = self.document_analysis_client.begin_analyze_document(
+                    model_id=model_type,
+                    analyze_request=AnalyzeDocumentRequest(url_source=document_input),
+                    pages=pages,
+                    locale=locale,
+                    string_index_type=string_index_type,
+                    features=features,
+                    query_fields=query_fields,
+                    output_content_format=output_format if output_format else "text",
+                    content_type=content_type,
+                    **kwargs,
+                )
+        else: 
+            with open(document_input, "rb") as f:
+                    #FIXME: this is not working
+                    poller = self.document_analysis_client.begin_analyze_document(
+                        model_id=model_type,
+                        analyze_request=f,
+                        pages=pages,
+                        locale=locale,
+                        string_index_type=string_index_type,
+                        features=features,
+                        query_fields=query_fields,
+                        output_content_format=output_format if output_format else "text",
+                        content_type=content_type,
+                        **kwargs,
+                    )
+        
         return poller.result()
-
+        
     def _generate_docs_single(self, result: Any) -> Iterator[Document]:
         yield Document(page_content=result.content, metadata={})
 

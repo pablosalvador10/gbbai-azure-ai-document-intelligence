@@ -120,9 +120,20 @@ class AzureIndexerManager(AzureAISearchManager):
             "skills": skills
         }
 
+                
+        # Ensure that 'skills' is a list
+        assert isinstance(self.skillset["skills"], list), "'skills' should be a list"
+
+        # Ensure that each item in 'skills' is a dictionary
+        for skill in self.skillset["skills"]:
+            assert isinstance(skill, dict), "Each skill should be a dictionary"
+
         logger.info(f"Skillset: \n{json.dumps(self.skillset, indent=4)}")
 
-        self.call_azure_search_api(resource="skillsets", method="POST", api_version="2023-10-01-Preview", body=json.dumps(self.skillset))
+        self.call_azure_search_api(resource="skillsets",
+                                method="POST", 
+                                api_version="2023-10-01-Preview", 
+                                body=json.dumps(self.skillset))
 
     def create_indexer(self, indexer_name: str, 
                        description: str, 
@@ -162,7 +173,10 @@ class AzureIndexerManager(AzureAISearchManager):
                 "parameters": parameters
             }
 
-            _, _ = self.search_api(resource="indexers", method="POST", apiVersion="2021-04-30-Preview", body=json.dumps(body))
+            _, _ = self.call_azure_search_api(resource="indexers",
+                                   method="POST",
+                                   api_version="2021-04-30-Preview", 
+                                   body=json.dumps(body))
         except Exception as e:
             logger.error(f"Failed to create indexer: {e}")
             raise
