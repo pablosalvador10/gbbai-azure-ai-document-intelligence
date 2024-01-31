@@ -32,6 +32,7 @@ class AzureDocumentIntelligenceManager:
 
         :param azure_endpoint: Endpoint URL for Azure's Document Analysis Client.
         :param azure_key: API key for Azure's Document Analysis Client.
+        :param container_client: Azure Container Client specific to the container.
         """
         self.azure_endpoint = azure_endpoint
         self.azure_key = azure_key

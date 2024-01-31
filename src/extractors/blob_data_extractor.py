@@ -160,3 +160,32 @@ class AzureBlobDataExtractor():
                     f"Failed to write blob data to temp file {filenames[i]}: {e}"
                 )
         return temp_files
+    
+    def download_files_to_folder(self, folder_path: str, local_dir: str) -> None:
+        """
+        Downloads all files from a specified folder in Azure Blob Storage to a local directory.
+
+        Args:
+            folder_path (str): The path to the folder within the blob container.
+            local_dir (str): The local directory to which the files will be downloaded.
+        """
+        try:
+            # Ensure folder path ends with a '/'
+            if not folder_path.endswith("/"):
+                folder_path += "/"
+                logger.info(f"Folder path {folder_path}")
+
+            blob_list = self.container_client.list_blobs()
+            for blob in blob_list:
+                logger.info(f"{blob.name}")
+                local_file_path = os.path.join(local_dir, os.path.basename(blob.name))
+                blob_client = self.container_client.get_blob_client(blob.name)
+                with open(local_file_path, "wb") as file:
+                    downloader = blob_client.download_blob()
+                    file.write(downloader.readall())
+
+                logger.info(f"Downloaded {blob.name} to {local_file_path}")
+
+        except Exception as e:
+            logger.error(f"An error occurred while downloading files: {e}")
+            raise

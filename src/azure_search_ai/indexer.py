@@ -28,35 +28,37 @@ class AzureIndexerManager(AzureAISearchManager):
         super().__init__(index_name=index_name, service_endpoint=service_endpoint)
         self.skills = []
 
-    def add_skill(self, odata_type: str, 
+    def add_built_in_skill(self, odata_type: str, 
                      name: str, 
                      description: str, 
                      context: str, 
-                     resource_uri: Optional[str] = None, 
-                     deployment_id: Optional[str] = None, 
+                     defaultLanguageCode: Optional[str] = None,
+                     textSplitMode: Optional[str] = None,
+                     maximumPageLength: Optional[int] = None,
+                     pageOverlapLength: Optional[int] = None,
+                     maximumPagesToTake: Optional[int] = None,
                      inputs: Optional[Union[Dict, List[Dict]]] = None, 
-                     outputs: Optional[Union[Dict, List[Dict]]] = None, 
-                     uri: Optional[str] = None, 
-                     batch_size: Optional[int] = None, 
-                     degree_of_parallelism: Optional[int] = None):
+                     outputs: Optional[Union[Dict, List[Dict]]] = None):
         """
-        Creates a skill and adds it to the skills list.
+        Creates a built-in skill and adds it to the skills list.
 
-        :param odata_type: The type of the skill. Accepts "EmbeddingSkill" or "CustomSkill".
+        :param odata_type: The type of the skill. Accepts "SplitSkill".
         :param name: The name of the skill.
         :param description: A description of the skill.
         :param context: The context of the skill.
-        :param resource_uri: The resource URI for the skill. Required for "EmbeddingSkill".
-        :param deployment_id: The deployment ID for the skill. Required for "EmbeddingSkill".
+        :param defaultLanguageCode: The default language code for the skill. Only applicable for "SplitSkill".
+        :param textSplitMode: The text split mode for the skill. Only applicable for "SplitSkill".
+        :param maximumPageLength: The maximum page length for the skill. Only applicable for "SplitSkill".
+        :param pageOverlapLength: The page overlap length for the skill. Only applicable for "SplitSkill".
+        :param maximumPagesToTake: The maximum pages to take for the skill. Only applicable for "SplitSkill".
         :param inputs: The inputs for the skill. Can be a dictionary or a list of dictionaries.
         :param outputs: The outputs for the skill. Can be a dictionary or a list of dictionaries.
-        :param uri: The URI for the skill. Required for "CustomSkill".
-        :param batch_size: The batch size for the skill. Required for "CustomSkill".
-        :param degree_of_parallelism: The degree of parallelism for the skill. Required for "CustomSkill".
+        :param batch_size: The batch size for the skill. Not applicable for "SplitSkill".
+        :param degree_of_parallelism: The degree of parallelism for the skill. Not applicable for "SplitSkill".
         """
         odata_type_map = {
             "EmbeddingSkill": "#Microsoft.Skills.Text.AzureOpenAIEmbeddingSkill",
-            "CustomSkill": "#Microsoft.Skills.Custom.WebApiSkill"
+            "SplitSkill": "#Microsoft.Skills.Text.SplitSkill"
         }
 
         skill = {
@@ -71,13 +73,24 @@ class AzureIndexerManager(AzureAISearchManager):
         if isinstance(outputs, dict):
             outputs = [outputs]
 
-        if odata_type == "EmbeddingSkill":
+        if odata_type == "SplitSkill":
+            skill.update({
+                "defaultLanguageCode": defaultLanguageCode,
+                "textSplitMode": textSplitMode,
+                "maximumPageLength": maximumPageLength,
+                "pageOverlapLength": pageOverlapLength,
+                "maximumPagesToTake": maximumPagesToTake,
+                "inputs": inputs,
+                "outputs": outputs
+            })
+
+        elif odata_type == "EmbeddingSkill":
             azure_aoai_key = os.getenv('AZURE_OPENAI_KEY')
-            azure_aoai_resource_uri = os.getenv('AZURE_OPENAI_ENDPOINT')
-            azure_aoai_deployment_id = os.getenv('AZURE_AOAI_EMBEDDING_DEPLOYMENT_ID')
+            azure_aoai_resource_uri = os.getenv('AZURE_OPENAI_API_ENDPOINT')
+            azure_aoai_deployment_id = os.getenv('AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID')
 
             if not all([azure_aoai_key, azure_aoai_resource_uri, azure_aoai_deployment_id]):
-                raise ValueError("Please set AZURE_OPENAI_KEY, AZURE_OPENAI_ENDPOINT, and AZURE_AOAI_EMBEDDING_DEPLOYMENT_ID environment variables.")
+                raise ValueError("Please set AZURE_OPENAI_KEY, AZURE_OPENAI_API_ENDPOINT, and AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID environment variables.")
             
             skill.update({
                 "resourceUri": azure_aoai_resource_uri,
@@ -86,9 +99,39 @@ class AzureIndexerManager(AzureAISearchManager):
                 "inputs": inputs,
                 "outputs": outputs
             })
+
+        self.skills.append(skill)
+
+    def add_custom_skill(self, 
+                         name: str, 
+                         description: str, 
+                         context: str, 
+                         inputs: Optional[Union[Dict, List[Dict]]] = None, 
+                         outputs: Optional[Union[Dict, List[Dict]]] = None, 
+                         uri: Optional[str] = None, 
+                         batch_size: Optional[int] = None, 
+                         degree_of_parallelism: Optional[int] = None):
+        """
+        Creates a custom skill and adds it to the skills list.
+
+        :param name: The name of the skill.
+        :param description: A description of the skill.
+        :param context: The context of the skill.
+        :param inputs: The inputs for the skill. Can be a dictionary or a list of dictionaries.
+        :param outputs: The outputs for the skill. Can be a dictionary or a list of dictionaries.
+        :param uri: The URI for the skill. Required for "CustomSkill".
+        :param batch_size: The batch size for the skill. Required for "CustomSkill".
+        :param degree_of_parallelism: The degree of parallelism for the skill. Required for "CustomSkill".
+        """
+
+        skill = {
+            "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+            "name": name,
+            "description": description,
+            "context": context
+        }
             
-        elif odata_type == "CustomSkill":
-            skill.update({
+        skill.update({
                 "uri": uri,
                 "batchSize": batch_size,
                 "degreeOfParallelism": degree_of_parallelism,

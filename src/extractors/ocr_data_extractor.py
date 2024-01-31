@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 import fitz
 
-from src.extractors.blob_data_extractor import AzureBlobManager
+from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 from utils.ml_logging import get_logger
 
 logger = get_logger()
@@ -33,7 +33,7 @@ class OCRHelper:
         Args:
             container_name (str): Name of the Azure Blob Storage container.
         """
-        self.blob_manager = AzureBlobManager(container_name)
+        self.blob_manager = AzureBlobDataExtractor(container_name)
 
     def extract_images_from_pdf(self, input_path: str, output_path: str) -> None:
         """
