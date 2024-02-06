@@ -1,4 +1,4 @@
-# Advanced OCR and Document Intelligence with Azure AI (Preview Version) ![Azure Logo](./utils/images/azure_logo.png)
+# <img src="./utils/images/azure_logo.png" alt="Azure Logo" style="width:30px;height:30px;"/> # Advanced OCR and Document Intelligence with Azure AI (Preview Version)
 
 This project aims to demonstrate the implementation of advanced Optical Character Recognition (OCR) and document intelligence services using Azure AI and GPT-4 Vision. The guide is divided into three main sections, each covered in a separate Jupyter notebook.
 
