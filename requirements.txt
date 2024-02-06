@@ -1,7 +1,7 @@
 # core DS development
 #azure ai 
 azure-identity
-azure-ai-formrecognizer
+azure-ai-documentintelligence
 azure-search-documents
 azure-storage-blob
 python-dotenv
@@ -11,5 +11,7 @@ PyMuPDF
 openai==0.28
 langchain 
 langchain-community
-
-
+Pillow
+PyMuPDF
+tabula-py
+tiktoken

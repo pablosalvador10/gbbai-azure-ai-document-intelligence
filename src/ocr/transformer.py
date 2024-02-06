@@ -1,12 +1,13 @@
 import base64
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 import requests
 from dotenv import load_dotenv
 from IPython.display import Image, display
 from requests.exceptions import RequestException
 
+from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 from utils.ml_logging import get_logger
 
 # Initialize logging
@@ -30,6 +31,7 @@ class GPT4VisionManager:
         deployment_name: Optional[str] = None,
         openai_api_version: Optional[str] = None,
         openai_api_key: Optional[str] = None,
+        container_name: Optional[str] = None,
     ):
         """
         Initialize the GPT4Vision class with OpenAI API configurations.
@@ -38,11 +40,16 @@ class GPT4VisionManager:
         :param deployment_name: Name of the deployment.
         :param openai_api_version: API version.
         :param openai_api_key: OpenAI API key.
+        :param container_client: Azure Container Client specific to the container.
         """
         self.openai_api_base = openai_api_base
         self.deployment_name = deployment_name
         self.openai_api_version = openai_api_version
         self.openai_api_key = openai_api_key
+        if not self.openai_api_base or not self.openai_api_key:
+            self.load_environment_variables_from_env_file()
+
+        self.blob_manager = AzureBlobDataExtractor(container_name=container_name)
 
     def load_environment_variables_from_env_file(self):
         """
@@ -108,6 +115,16 @@ class GPT4VisionManager:
             logger.error(f"Image file not found: {e}")
             raise
 
+    @staticmethod
+    def _encode_bytes_to_base64(image_bytes: bytes) -> str:
+        """
+        Encode image bytes to base64. (Internal method)
+
+        :param image_bytes: Bytes of the image.
+        :return: Base64 encoded string of the image.
+        """
+        return base64.b64encode(image_bytes).decode("utf-8")
+
     def prepare_instruction(self, system_text: str, user_text: str) -> List[Dict]:
         """
         Prepares the complete message structure for the GPT-4 Vision API call.
@@ -171,7 +188,7 @@ class GPT4VisionManager:
 
     def call_gpt4v_image(
         self,
-        image_file_path: str,
+        image_file_paths: Union[str, List[str]],
         system_instruction: Optional[str] = None,
         user_instruction: Optional[str] = None,
         ocr: bool = False,
@@ -204,13 +221,30 @@ class GPT4VisionManager:
         :return: A dictionary containing the response from the GPT-4 Vision API call. The dictionary includes the model's output and any other information returned by the API.
         """
         try:
-            encoded_image = self._encode_image_to_base64(image_file_path)
-            image_url = f"data:image/jpeg;base64,{encoded_image}"
-
             if system_instruction is not None or user_instruction is not None:
                 self.prepare_instruction(system_instruction, user_instruction)
 
-            self.add_image_url_to_user_message(image_url)
+            if isinstance(image_file_paths, str):
+                image_file_paths = [image_file_paths]
+
+            for image_file_path in image_file_paths:
+                if image_file_path.startswith(("http://", "https://")):
+                    if image_file_path.startswith("http://"):
+                        raise ValueError(
+                            "HTTP URLs are not supported. Please use HTTPS."
+                        )
+                    # If it's an HTTPS URL but contains "blob.core.windows.net", process it as a blob
+                    elif "blob.core.windows.net" in image_file_path:
+                        logger.info("Blob URL detected. Extracting content.")
+                        content_bytes = self.blob_manager.extract_content(
+                            image_file_path
+                        )
+                        encoded_image = self._encode_bytes_to_base64(content_bytes)
+                else:
+                    encoded_image = self._encode_image_to_base64(image_file_path)
+
+                image_url = f"data:image/jpeg;base64,{encoded_image}"
+                self.add_image_url_to_user_message(image_url)
 
             if use_vision_api:
                 azure_endpoint_vision = os.getenv("AZURE_ENDPOINT_VISION")

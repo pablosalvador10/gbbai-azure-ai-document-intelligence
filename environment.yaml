@@ -7,6 +7,9 @@ dependencies:
   - python=3.9
   - pip
   - ipykernel
+  - poppler
   - pip:
     - -r requirements.txt
     - -r requirements-codequality.txt
+
+   
