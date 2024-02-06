@@ -1,11 +1,10 @@
 """
 `azure_openai.py` is a module for managing interactions with the Azure OpenAI API within our application.
-
 """
 import os
-import openai
 from typing import Dict, List, Optional
 
+import openai
 from dotenv import load_dotenv
 from openai import AzureOpenAI
 
@@ -16,6 +15,7 @@ load_dotenv()
 
 # Set up logger
 logger = get_logger()
+
 
 class AzureOpenAIManager:
     """
@@ -136,7 +136,7 @@ class AzureOpenAIManager:
             logger.error("The server could not be reached")
             logger.error(e.__cause__)
             return None
-        except openai.RateLimitError as e:
+        except openai.RateLimitError:
             logger.error("A 429 status code was received; we should back off a bit.")
             return None
         except openai.APIStatusError as e:
@@ -204,7 +204,7 @@ class AzureOpenAIManager:
             logger.error("The server could not be reached")
             logger.error(e.__cause__)
             return None
-        except openai.RateLimitError as e:
+        except openai.RateLimitError:
             logger.error("A 429 status code was received; we should back off a bit.")
             return None
         except openai.APIStatusError as e:
@@ -225,7 +225,7 @@ class AzureOpenAIManager:
         :param input_text: The text to generate an embedding for.
         :param model_name: The name of the model to use for generating the embedding. If None, the default embedding model is used.
         :param kwargs: Additional parameters for the API request.
-        :return: The embedding as a JSON string, or None if an error occurred.
+        :return: The embedding as a string, or None if an error occurred.
         :raises Exception: If an error occurs while making the API request.
         """
         try:
@@ -235,15 +235,15 @@ class AzureOpenAIManager:
                 **kwargs,
             )
 
-            embedding = response.model_dump_json(indent=2)
-            logger.info(f"Created embedding: {embedding}")
+            embedding = response.data[0].embedding
+            logger.debug(f"Created embedding: {response.model_dump_json(indent=2)}")
             return embedding
 
         except openai.APIConnectionError as e:
             logger.error("The server could not be reached")
             logger.error(e.__cause__)
             return None
-        except openai.RateLimitError as e:
+        except openai.RateLimitError:
             logger.error("A 429 status code was received; we should back off a bit.")
             return None
         except openai.APIStatusError as e:

@@ -6,11 +6,12 @@ from azure.ai.documentintelligence import DocumentIntelligenceClient, models
 
 # from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
-from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 from azure.core.credentials import AzureKeyCredential
 from azure.core.polling import LROPoller
 from dotenv import load_dotenv
 from langchain_core.documents import Document
+
+from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 from utils.ml_logging import get_logger
 
 # Initialize logging
@@ -23,9 +24,10 @@ class AzureDocumentIntelligenceManager:
     """
 
     def __init__(
-        self, azure_endpoint: Optional[str] = None, 
+        self,
+        azure_endpoint: Optional[str] = None,
         azure_key: Optional[str] = None,
-        container_name: Optional[str] = None
+        container_name: Optional[str] = None,
     ):
         """
         Initialize the class with configurations for Azure's Document Analysis Client.
@@ -44,7 +46,7 @@ class AzureDocumentIntelligenceManager:
             raise ValueError(
                 "Azure endpoint and key must be provided either as parameters or in a .env file."
             )
-        
+
         self.blob_manager = AzureBlobDataExtractor(container_name=container_name)
 
         self.document_analysis_client = DocumentIntelligenceClient(
@@ -157,7 +159,7 @@ class AzureDocumentIntelligenceManager:
                     content_type=content_type,
                     **kwargs,
                 )
-            else: 
+            else:
                 poller = self.document_analysis_client.begin_analyze_document(
                     model_id=model_type,
                     analyze_request=AnalyzeDocumentRequest(url_source=document_input),
@@ -170,24 +172,24 @@ class AzureDocumentIntelligenceManager:
                     content_type=content_type,
                     **kwargs,
                 )
-        else: 
+        else:
             with open(document_input, "rb") as f:
-                    #FIXME: this is not working
-                    poller = self.document_analysis_client.begin_analyze_document(
-                        model_id=model_type,
-                        analyze_request=f,
-                        pages=pages,
-                        locale=locale,
-                        string_index_type=string_index_type,
-                        features=features,
-                        query_fields=query_fields,
-                        output_content_format=output_format if output_format else "text",
-                        content_type=content_type,
-                        **kwargs,
-                    )
-        
+                # FIXME: this is not working
+                poller = self.document_analysis_client.begin_analyze_document(
+                    model_id=model_type,
+                    analyze_request=f,
+                    pages=pages,
+                    locale=locale,
+                    string_index_type=string_index_type,
+                    features=features,
+                    query_fields=query_fields,
+                    output_content_format=output_format if output_format else "text",
+                    content_type=content_type,
+                    **kwargs,
+                )
+
         return poller.result()
-        
+
     def _generate_docs_single(self, result: Any) -> Iterator[Document]:
         yield Document(page_content=result.content, metadata={})
 

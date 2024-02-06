@@ -6,12 +6,13 @@ import requests
 from dotenv import load_dotenv
 from IPython.display import Image, display
 from requests.exceptions import RequestException
-from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 
+from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 from utils.ml_logging import get_logger
 
 # Initialize logging
 logger = get_logger()
+
 
 class GPT4VisionManager:
     """
@@ -30,7 +31,7 @@ class GPT4VisionManager:
         deployment_name: Optional[str] = None,
         openai_api_version: Optional[str] = None,
         openai_api_key: Optional[str] = None,
-        container_name: Optional[str] = None
+        container_name: Optional[str] = None,
     ):
         """
         Initialize the GPT4Vision class with OpenAI API configurations.
@@ -220,7 +221,6 @@ class GPT4VisionManager:
         :return: A dictionary containing the response from the GPT-4 Vision API call. The dictionary includes the model's output and any other information returned by the API.
         """
         try:
-            
             if system_instruction is not None or user_instruction is not None:
                 self.prepare_instruction(system_instruction, user_instruction)
 
@@ -230,14 +230,18 @@ class GPT4VisionManager:
             for image_file_path in image_file_paths:
                 if image_file_path.startswith(("http://", "https://")):
                     if image_file_path.startswith("http://"):
-                        raise ValueError("HTTP URLs are not supported. Please use HTTPS.")
+                        raise ValueError(
+                            "HTTP URLs are not supported. Please use HTTPS."
+                        )
                     # If it's an HTTPS URL but contains "blob.core.windows.net", process it as a blob
                     elif "blob.core.windows.net" in image_file_path:
                         logger.info("Blob URL detected. Extracting content.")
-                        content_bytes = self.blob_manager.extract_content(image_file_path)
+                        content_bytes = self.blob_manager.extract_content(
+                            image_file_path
+                        )
                         encoded_image = self._encode_bytes_to_base64(content_bytes)
-                else: 
-                     encoded_image = self._encode_image_to_base64(image_file_path)
+                else:
+                    encoded_image = self._encode_image_to_base64(image_file_path)
 
                 image_url = f"data:image/jpeg;base64,{encoded_image}"
                 self.add_image_url_to_user_message(image_url)

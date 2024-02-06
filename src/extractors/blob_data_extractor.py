@@ -13,7 +13,7 @@ from utils.ml_logging import get_logger
 logger = get_logger()
 
 
-class AzureBlobDataExtractor():
+class AzureBlobDataExtractor:
     """
     Class for managing interactions with Azure Blob Storage. It provides functionalities
     to read and write data to blobs, especially focused on handling various file formats.
@@ -160,7 +160,7 @@ class AzureBlobDataExtractor():
                     f"Failed to write blob data to temp file {filenames[i]}: {e}"
                 )
         return temp_files
-    
+
     def download_files_to_folder(self, folder_path: str, local_dir: str) -> None:
         """
         Downloads all files from a specified folder in Azure Blob Storage to a local directory.

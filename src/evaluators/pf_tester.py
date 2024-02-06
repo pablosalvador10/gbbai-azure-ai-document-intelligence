@@ -1,14 +1,14 @@
 import os
 from typing import Any, List, Optional
-import asyncio
-
-from dotenv import load_dotenv
-from utils.ml_logging import get_logger
 
 import promptflow as pf
+from dotenv import load_dotenv
+
+from utils.ml_logging import get_logger
 
 # Initialize logging
 logger = get_logger()
+
 
 class PromptFlowManagerEvaluator:
     """
@@ -68,7 +68,9 @@ class PromptFlowManagerEvaluator:
                 f"Missing required environment variables: {', '.join(missing_vars)}"
             )
 
-    def run_promptflow_evaluations(self, chat_history: List[str], question: str, answer: str, context: str) -> Any:
+    def run_promptflow_evaluations(
+        self, chat_history: List[str], question: str, answer: str, context: str
+    ) -> Any:
         """
         Creates an instance of PFClient, calls the test method with provided arguments, and returns the result.
 
@@ -83,14 +85,16 @@ class PromptFlowManagerEvaluator:
         """
 
         try:
-
             # Call the test method and get the result
-            result = self.cli.test(self.eval_flow, inputs=dict(
-                chat_history=chat_history,
-                question=question,
-                answer=answer,
-                context=context
-            ))
+            result = self.cli.test(
+                self.eval_flow,
+                inputs=dict(
+                    chat_history=chat_history,
+                    question=question,
+                    answer=answer,
+                    context=context,
+                ),
+            )
 
             # Log the result
             logger.info(f"Test result: {result}")
@@ -99,4 +103,3 @@ class PromptFlowManagerEvaluator:
         except Exception as e:
             logger.error(f"An error occurred while testing: {e}")
             raise
-

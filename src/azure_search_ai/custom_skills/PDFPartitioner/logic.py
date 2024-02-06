@@ -1,6 +1,8 @@
-from typing import List
-import tiktoken
 import re
+from typing import List
+
+import tiktoken
+
 from utils.ml_logging import get_logger
 
 # Initialize logging
@@ -19,6 +21,7 @@ def num_tokens_from_string(string: str, encoding_name: str = "cl100k_base") -> i
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
+
 def split_text_by_headings(text: str, section_headings: List[str]) -> List[str]:
     """
     Splits text into chunks based on provided section headings.
@@ -27,11 +30,12 @@ def split_text_by_headings(text: str, section_headings: List[str]) -> List[str]:
     :param section_headings: A list of headings used to split the text.
     :return: List of text chunks.
     """
-    pattern = '|'.join('(?={})'.format(re.escape(sec)) for sec in section_headings)
+    pattern = "|".join("(?={})".format(re.escape(sec)) for sec in section_headings)
     chunks = re.split(pattern, text)
     for i, chunk in enumerate(chunks):
         logger.info(f"Number of tokens in chunk {i+1}: {num_tokens_from_string(chunk)}")
     return chunks
+
 
 def combine_chunks(chunks: List[str], min_length: int) -> List[str]:
     """
