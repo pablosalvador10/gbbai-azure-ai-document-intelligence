@@ -59,10 +59,10 @@ class GPT4VisionManager:
         """
         load_dotenv()
 
-        self.openai_api_base = os.getenv("AZURE_OPENAI_ENDPOINT_VISION")
-        self.deployment_name = os.getenv("AZURE_OPENAI_API_DEPLOYMENT_NAME_VISION")
-        self.openai_api_version = os.getenv("AZURE_OPENAI_API_VERSION_VISION")
-        self.openai_api_key = os.getenv("AZURE_OPENAI_API_KEY_VISION")
+        self.openai_api_base = os.getenv("AZURE_AOAI_ENDPOINT_VISION")
+        self.deployment_name = os.getenv("AZURE_AOAI_API_DEPLOYMENT_NAME_VISION")
+        self.openai_api_version = os.getenv("AZURE_AOAI_API_VERSION_VISION")
+        self.openai_api_key = os.getenv("AZURE_AOAI_API_KEY_VISION")
 
         # Check for any missing required environment variables
         required_vars = {

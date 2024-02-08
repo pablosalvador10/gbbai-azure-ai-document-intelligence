@@ -2,17 +2,18 @@
 
 This project aims to demonstrate the implementation of advanced Optical Character Recognition (OCR) and document intelligence services using Azure AI and GPT-4 Vision. The guide is divided into three main sections, each covered in a separate Jupyter notebook.
 
-- **[OCR with Azure AI Document Intelligence](./01-ocr-document-intelligence.ipynb)**
+- **OCR with Azure AI Document Intelligence** (01-ocr-document-intelligence.ipynb)
     - Overview of Azure's Document Analysis Client
     - Custom logic for processing extracted information
     - Retrieval-Augmented Generation (RAG) with a pretrained Large Language Model (LLM)
 
-- **[OCR with GPT-4 Vision](./02-ocr-gpt4v.ipynb)**
+- **OCR with GPT-4 Vision** (02-ocr-gpt4v.ipynb)
     - Conversion of PDF documents into images
     - Text recognition and extraction from images using GPT-4 Vision
-    - Context-aware text generation with `AzureOpenAIAssistant`
+    - Use of `AzureOpenAIManager` for processing OCR output and interacting with Azure OpenAI API
+    - Generation of context-aware responses based on text extracted from images
 
-- **[Azure AI Indexer Orchestration](./03-azure-ai-search-orchestration.ipynb)**
+- **Azure AI Indexer Orchestration** (03-azure-ai-search-orchestration.ipynb)
     - Operation of indexers, skillsets, and skills for data ingestion, enrichment, and searchability
 
 ## 🔧 Prerequisites

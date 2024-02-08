@@ -19,12 +19,12 @@ Create a `.env` file in your project root (use the provided `.env.sample` as a t
 
 ```env
 # Azure Open AI Completion Configuration
-AZURE_OPENAI_KEY="[Your Azure OpenAI Key]"
+AZURE_AOAI_KEY="[Your Azure OpenAI Key]"
 AZURE_AOAI_CHAT_MODEL_NAME_DEPLOYMENT_ID="[Your Azure AOAI Chat Model Name Deployment ID]"
 AZURE_AOAI_COMPLETION_MODEL_DEPLOYMENT_ID="[Your Azure AOAI Completion Model Deployment ID]"
 AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID="[Your Azure AOAI Embedding Model Deployment ID]"
-AZURE_OPENAI_API_ENDPOINT="[Your Azure OpenAI API Endpoint]"
-AZURE_OPENAI_API_VERSION="[Your Azure OpenAI API Version]"
+AZURE_AOAI_API_ENDPOINT="[Your Azure OpenAI API Endpoint]"
+AZURE_AOAI_API_VERSION="[Your Azure OpenAI API Version]"
 
 # OPTIONAL: Azure AI Search Service Configuration
 AZURE_AI_SEARCH_SERVICE_ENDPOINT="[Your Azure AI Search Service Endpoint]"
@@ -32,10 +32,12 @@ AZURE_SEARCH_ADMIN_KEY="[Your Azure Search Admin Key]"
 AZURE_AI_SEARCH_INDEX_NAME="[Your Azure AI Search Index Name]"
 
 # Azure Open Vision API Configuration
-AZURE_OPENAI_API_KEY_VISION='[Your OpenAI API Key for Vision]'
-AZURE_OPENAI_ENDPOINT_VISION='[Your OpenAI Endpoint for Vision]'
-AZURE_OPENAI_API_VERSION_VISION='[Your Azure OpenAI API Version for Vision]'
-AZURE_OPENAI_API_DEPLOYMENT_NAME_VISION= '[Your Azure OpenAI Deployment Name for Vision]'
+# (Note: I have a deployment in another region, but you could have a single region deployment and just add the deployment model.)
+
+AZURE_AOAI_API_KEY_VISION='[Your OpenAI API Key for Vision]'
+AZURE_AOAI_ENDPOINT_VISION='[Your OpenAI Endpoint for Vision]'
+AZURE_AOAI_API_VERSION_VISION='[Your Azure OpenAI API Version for Vision]'
+AZURE_AOAI_API_DEPLOYMENT_NAME_VISION= '[Your Azure OpenAI Deployment Name for Vision]'
 
 # Azure Document Intelligence API Configuration
 AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT="[Your Azure Document Intelligence Endpoint]"
@@ -51,9 +53,9 @@ AZURE_STORAGE_CONNECTION_STRING='[Your Azure Storage Connection String]'
 
 Replace the placeholders (e.g., [Your Azure Search Service Endpoint]) with your actual values.
 
-- `AZURE_OPENAI_KEY`, `AZURE_AOAI_CHAT_MODEL_NAME_DEPLOYMENT_ID`, `AZURE_AOAI_COMPLETION_MODEL_DEPLOYMENT_ID`, `AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID`, `AZURE_OPENAI_API_ENDPOINT`, and `AZURE_OPENAI_API_VERSION` are used to configure the Azure OpenAI API.
+- `AZURE_AOAI_KEY`, `AZURE_AOAI_CHAT_MODEL_NAME_DEPLOYMENT_ID`, `AZURE_AOAI_COMPLETION_MODEL_DEPLOYMENT_ID`, `AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID`, `AZURE_AOAI_API_ENDPOINT`, and `AZURE_AOAI_API_VERSION` are used to configure the Azure OpenAI API.
 - OPTIONAL: `AZURE_AI_SEARCH_SERVICE_ENDPOINT`, `AZURE_SEARCH_ADMIN_KEY`, and `AZURE_AI_SEARCH_INDEX_NAME` are used to configure the Azure AI Search Service.
-- `AZURE_OPENAI_API_KEY_VISION`, `AZURE_OPENAI_ENDPOINT_VISION`, `AZURE_OPENAI_API_VERSION_VISION`, and `AZURE_OPENAI_API_DEPLOYMENT_NAME_VISION` are used to configure the Azure Open Vision API.
+- `AZURE_AOAI_API_KEY_VISION`, `AZURE_AOAI_ENDPOINT_VISION`, `AZURE_AOAI_API_VERSION_VISION`, and `AZURE_AOAI_API_DEPLOYMENT_NAME_VISION` are used to configure the Azure Open Vision API.
 - `AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT` and `AZURE_DOCUMENT_INTELLIGENCE_KEY` are used to configure the Azure Document Intelligence API.
 - `AZURE_KEY_VISION` and `AZURE_ENDPOINT_VISION` are used to configure the Azure Vision API.
 - `AZURE_STORAGE_CONNECTION_STRING` is used to configure the Azure Storage service.
