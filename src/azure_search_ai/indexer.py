@@ -91,8 +91,8 @@ class AzureIndexerManager(AzureAISearchManager):
             )
 
         elif odata_type == "EmbeddingSkill":
-            azure_aoai_key = os.getenv("AZURE_OPENAI_KEY")
-            azure_aoai_resource_uri = os.getenv("AZURE_OPENAI_API_ENDPOINT")
+            azure_aoai_key = os.getenv("AZURE_AOAI_KEY")
+            azure_aoai_resource_uri = os.getenv("AZURE_AOAI_API_ENDPOINT")
             azure_aoai_deployment_id = os.getenv(
                 "AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID"
             )
@@ -101,7 +101,7 @@ class AzureIndexerManager(AzureAISearchManager):
                 [azure_aoai_key, azure_aoai_resource_uri, azure_aoai_deployment_id]
             ):
                 raise ValueError(
-                    "Please set AZURE_OPENAI_KEY, AZURE_OPENAI_API_ENDPOINT, and AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID environment variables."
+                    "Please set AZURE_AOAI_KEY, AZURE_AOAI_API_ENDPOINT, and AZURE_AOAI_EMBEDDING_MODEL_DEPLOYMENT_ID environment variables."
                 )
 
             skill.update(
