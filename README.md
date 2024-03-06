@@ -18,7 +18,7 @@ This project aims to demonstrate the implementation of advanced Optical Characte
 
 ## 🔧 Prerequisites
 
-Please make sure you have met all the prerequisites for this project. A detailed guide on how to set up your environment and get ready to run all the notebooks and code in this repository can be found in the [REQUIREMENTS.md](REQUIREMENTS.md) file. Please follow the instructions there to ensure a smooth exprience.
+Please make sure you have met all the prerequisites for this project. A detailed guide on how to set up your environment and get ready to run all the notebooks and code in this repository can be found in the [SETTINGS.md](SETTINGS.md) file. Please follow the instructions there to ensure a smooth exprience.
 
 
 ## 🔄 Continuous Integration/Continuous Deployment (CI/CD) (preview)

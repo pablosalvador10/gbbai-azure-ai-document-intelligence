@@ -1,6 +1,6 @@
 import os
 from functools import lru_cache
-from typing import Any, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 from azure.ai.documentintelligence import DocumentIntelligenceClient, models
 
@@ -174,7 +174,7 @@ class AzureDocumentIntelligenceManager:
                 )
         else:
             with open(document_input, "rb") as f:
-                # FIXME: this is not working
+                # FIXME: local upload is not working
                 poller = self.document_analysis_client.begin_analyze_document(
                     model_id=model_type,
                     analyze_request=f,
@@ -189,6 +189,80 @@ class AzureDocumentIntelligenceManager:
                 )
 
         return poller.result()
+
+    def process_invoices(self, invoices: LROPoller) -> Dict:
+        """
+        Processes the invoices and returns a dictionary with the data.
+
+        :param invoices: The invoices to process.
+        :return: A dictionary with the processed data.
+        """
+        data = []
+        for idx, invoice in enumerate(invoices.documents):
+            invoice_data = {}
+            fields = [
+                "VendorName",
+                "VendorAddress",
+                "VendorAddressRecipient",
+                "CustomerName",
+                "CustomerId",
+                "CustomerAddress",
+                "CustomerAddressRecipient",
+                "InvoiceId",
+                "InvoiceDate",
+                "InvoiceTotal",
+                "DueDate",
+                "PurchaseOrder",
+                "BillingAddress",
+                "BillingAddressRecipient",
+                "ShippingAddress",
+                "ShippingAddressRecipient",
+                "SubTotal",
+                "TotalTax",
+                "PreviousUnpaidBalance",
+                "AmountDue",
+                "ServiceStartDate",
+                "ServiceEndDate",
+                "ServiceAddress",
+                "ServiceAddressRecipient",
+                "RemittanceAddress",
+                "RemittanceAddressRecipient",
+            ]
+            for field in fields:
+                field_data = invoice.fields.get(
+                    field, {"content": None, "confidence": None}
+                )
+                invoice_data[field] = {
+                    "content": field_data.get("content"),
+                    "confidence": field_data.get("confidence"),
+                }
+            items = []
+            for idx, item in enumerate(
+                invoice.fields.get("Items", {"valueArray": []}).get("valueArray")
+            ):
+                item_data = {}
+                item_fields = [
+                    "Description",
+                    "Quantity",
+                    "Unit",
+                    "UnitPrice",
+                    "ProductCode",
+                    "Date",
+                    "Tax",
+                    "Amount",
+                ]
+                for item_field in item_fields:
+                    item_field_data = item.get("valueObject").get(
+                        item_field, {"content": None, "confidence": None}
+                    )
+                    item_data[item_field] = {
+                        "content": item_field_data.get("content"),
+                        "confidence": item_field_data.get("confidence"),
+                    }
+                items.append(item_data)
+            invoice_data["Items"] = items
+            data.append(invoice_data)
+        return data
 
     def _generate_docs_single(self, result: Any) -> Iterator[Document]:
         yield Document(page_content=result.content, metadata={})
