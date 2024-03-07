@@ -1,15 +1,15 @@
 import os
 from functools import lru_cache
-from typing import Any, Iterator, List, Optional, Union
+from typing import Any, Dict, Iterator, List, Optional, Union
 
 from azure.ai.documentintelligence import DocumentIntelligenceClient, models
 
 # from azure.ai.formrecognizer import DocumentAnalysisClient
-from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
+from azure.ai.documentintelligence.models import AnalyzeDocumentRequest, Document
 from azure.core.credentials import AzureKeyCredential
 from azure.core.polling import LROPoller
 from dotenv import load_dotenv
-from langchain_core.documents import Document
+from langchain_core.documents import Document as LangchainDocument
 
 from src.extractors.blob_data_extractor import AzureBlobDataExtractor
 from utils.ml_logging import get_logger
@@ -174,7 +174,7 @@ class AzureDocumentIntelligenceManager:
                 )
         else:
             with open(document_input, "rb") as f:
-                # FIXME: this is not working
+                # FIXME: local upload is not working
                 poller = self.document_analysis_client.begin_analyze_document(
                     model_id=model_type,
                     analyze_request=f,
@@ -190,9 +190,80 @@ class AzureDocumentIntelligenceManager:
 
         return poller.result()
 
-    def _generate_docs_single(self, result: Any) -> Iterator[Document]:
-        yield Document(page_content=result.content, metadata={})
+    def process_invoice(self, invoice: Document) -> Dict:
+        """
+        Processes a single invoice and returns a dictionary with the data.
 
-    def load(self, result: Any) -> List[Document]:
+        :param invoice: The invoice to process.
+        :return: A dictionary with the processed data.
+        """
+        invoice_data = {}
+        fields = [
+            "VendorName",
+            "VendorAddress",
+            "VendorAddressRecipient",
+            "CustomerName",
+            "CustomerId",
+            "CustomerAddress",
+            "CustomerAddressRecipient",
+            "InvoiceId",
+            "InvoiceDate",
+            "InvoiceTotal",
+            "DueDate",
+            "PurchaseOrder",
+            "BillingAddress",
+            "BillingAddressRecipient",
+            "ShippingAddress",
+            "ShippingAddressRecipient",
+            "SubTotal",
+            "TotalTax",
+            "PreviousUnpaidBalance",
+            "AmountDue",
+            "ServiceStartDate",
+            "ServiceEndDate",
+            "ServiceAddress",
+            "ServiceAddressRecipient",
+            "RemittanceAddress",
+            "RemittanceAddressRecipient",
+        ]
+        for field in fields:
+            field_data = invoice.fields.get(
+                field, {"content": None, "confidence": None}
+            )
+            invoice_data[field] = {
+                "content": field_data.get("content"),
+                "confidence": field_data.get("confidence"),
+            }
+        items = []
+        for idx, item in enumerate(
+            invoice.fields.get("Items", {"valueArray": []}).get("valueArray")
+        ):
+            item_data = {}
+            item_fields = [
+                "Description",
+                "Quantity",
+                "Unit",
+                "UnitPrice",
+                "ProductCode",
+                "Date",
+                "Tax",
+                "Amount",
+            ]
+            for item_field in item_fields:
+                item_field_data = item.get("valueObject").get(
+                    item_field, {"content": None, "confidence": None}
+                )
+                item_data[item_field] = {
+                    "content": item_field_data.get("content"),
+                    "confidence": item_field_data.get("confidence"),
+                }
+            items.append(item_data)
+        invoice_data["Items"] = items
+        return invoice_data
+
+    def _generate_docs_single(self, result: Any) -> Iterator[LangchainDocument]:
+        yield LangchainDocument(page_content=result.content, metadata={})
+
+    def load(self, result: Any) -> List[LangchainDocument]:
         """Load given path as pages."""
         return list(self._generate_docs_single(result))

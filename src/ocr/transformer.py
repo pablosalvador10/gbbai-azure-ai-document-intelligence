@@ -2,6 +2,7 @@ import base64
 import os
 from typing import Dict, List, Optional, Union
 
+import openai
 import requests
 from dotenv import load_dotenv
 from IPython.display import Image, display
@@ -318,6 +319,7 @@ class GPT4VisionManager:
                 payload["dataSources"] = data_sources
 
             # Send the request
+            logger.info(f"Sending request to {api_url} with payload: {payload}")
             response = requests.post(api_url, headers=headers, json=payload)
             response.raise_for_status()
             logger.info("Request successful.")
@@ -331,3 +333,18 @@ class GPT4VisionManager:
         except RequestException as e:
             logger.error(f"Failed to make the request. Error: {e}")
             raise SystemExit(f"Failed to make the request. Error: {e}")
+        except openai.APIConnectionError as e:
+            logger.error("The server could not be reached")
+            logger.error(e.__cause__)
+            return None
+        except openai.RateLimitError:
+            logger.error("A 429 status code was received; we should back off a bit.")
+            return None
+        except openai.APIStatusError as e:
+            logger.error("Another non-200-range status code was received")
+            logger.error(e.status_code)
+            logger.error(e.response)
+            return None
+        except Exception as e:
+            logger.error(f"Azure OpenAI API error: {e}")
+            return None
