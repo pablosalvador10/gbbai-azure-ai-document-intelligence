@@ -1,18 +1,19 @@
 # <img src="./utils/images/azure_logo.png" alt="Azure Logo" style="width:30px;height:30px;"/> Advanced OCR and Intelligence Document Proccessing with Azure AI/AOAI
 
-# 🎯 Project Overview
+## 🎯 Project Overview
 
-This project showcases the implementation of advanced Optical Character Recognition (OCR) and document intelligence services using Azure AI and GPT-4 Vision. The guide is divided into three main sections, each covered in a separate Jupyter notebook.
 
-### Azure Document Intelligence 📄
+This project explores advanced Optical Character Recognition (OCR) techniques using Azure AI's Document Intelligence and multimodal algorithms with Azure OpenAI (GPT-4 Vision). The project is divided into three distinct sections, each detailed in a separate Jupyter notebook.
 
-Azure Document Intelligence goes beyond traditional OCR capabilities, leveraging AI and machine learning models to analyze, understand, and categorize extracted data. It processes unstructured data to detect entities, relationships, sentiments, and context, transforming raw data into structured, actionable insights. This empowers businesses to automate document-related workflows, enhance decision-making, and improve overall efficiency.
+### Azure Document Intelligence
 
-### Multimodal Capabilities with GPT-4 and Azure OpenAI 🌐
+Azure Document Intelligence goes beyond traditional OCR capabilities, leveraging deep learning models to analyze, understand, and categorize extracted data. It processes unstructured data to detect entities, relationships, sentiments, and context, transforming raw data into structured, actionable insights. 
+
+### Multimodal Capabilities with GPT-4 and Azure OpenAI
 
 GPT-4's multimodal capabilities signify its ability to understand and generate information across different modes of input, including text and images. This groundbreaking advancement allows for a more nuanced interpretation of documents, where GPT-4 can analyze visual elements in conjunction with textual content to grasp the context, intent, and subtleties of the information presented.
 
-### Achieving Context-aware Data Extraction 🎯
+#### Achieving Context-aware Data Extraction
 
 The integration of Complex OCR with GPT-4’s multimodal capabilities, facilitated by Azure OpenAI, enables context-aware data extraction. This integration allows the system to:
 
@@ -25,7 +26,7 @@ This approach not only enhances the accuracy of data extraction but also enables
 ## 📚 Notebooks
 
 1. **OCR with Azure AI Document Intelligence** (01-ocr-document-intelligence.ipynb)
-    - Provides an overview of Azure's Document Analysis Client and its pre-trained models for document analysis.
+    - Provides a detailed overview of Azure's Document Analysis Client and its pre-trained models, demonstrating their use for document analysis and data extraction. 
 
 2. **OCR with GPT-4 Vision** (02-ocr-gpt4v.ipynb)
     - Explores the use of GPT-4V(Vision) for OCR, presenting a more human-like approach to OCR that doesn't just extract text but also gathers contextualized details from the image.
